@@ -1,1 +1,0 @@
-/usr/bin/cc   -rdynamic CMakeFiles/CAN_Frame_Stream_Input.dir/CAN_Frame_Stream_Input.c.o  -o CAN_Frame_Stream_Input /usr/lib/x86_64-linux-gnu/libnixnet.so.20.5.1 

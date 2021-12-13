@@ -35,9 +35,9 @@ int main(void)
    unsigned int i = 0;
    int l_TypedChar = 0;
    char *l_pSelectedInterface = "CAN2";
-   char *l_pSelectedDatabase = ":memory:";
-   char *l_pSelectedCluster = "";
-   char *l_pSelectedFrameList = "";
+   char *l_pSelectedDatabase = "NIXNET_example";
+   char *l_pSelectedCluster = "CAN_Cluster";
+   char *l_pSelectedFrameList = "CANCyclicFrame1";
 
    u8 l_Buffer[250 * sizeof(nxFrameCAN_t)]; // Use a large buffer for stream input
    nxFrameVar_t *l_pFrame = NULL;
