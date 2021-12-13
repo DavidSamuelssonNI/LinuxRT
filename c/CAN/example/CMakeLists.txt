@@ -5,7 +5,7 @@ include(CTest)
 enable_testing()
 
 add_executable(CAN_Frame_Stream_Input CAN_Frame_Stream_Input.c)
-
+target_link_libraries(CAN_Frame_Stream_Input /usr/lib/x86_64-linux-gnu/libnixnet.so.20.5.1)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

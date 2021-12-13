@@ -10,8 +10,9 @@
 
 #include <stdlib.h>     // Include file for various functions
 #include <stdio.h>      // Include file for printf
-#include <conio.h>      // Include file for _getch/kbhit
-#include <windows.h>    // Include file for Win32 time functions
+#include <unistd.h>     // Include Sleep function for Linux
+//#include <conio.h>      // Include file for _getch/kbhit WINDOWS ONLY
+//#include <windows.h>    // Include file for Win32 time functions WINDOWS ONLY
 #include "nixnet.h"     // Include file for NI-XNET functions and constants
 
 //=============================================================================
@@ -22,8 +23,8 @@ static nxSessionRef_t m_SessionRef = 0;
 //=============================================================================
 // Global functions declarations
 //=============================================================================
-void DisplayErrorAndExit(nxStatus_t Status, char *Source);
-int PrintTimestamp(nxTimestamp_t *Time);
+//void DisplayErrorAndExit(nxStatus_t Status, char *Source);
+//int PrintTimestamp(nxTimestamp_t *Time);
 
 //=============================================================================
 // Main function
@@ -41,7 +42,7 @@ int main(void)
    u8 l_Buffer[250 * sizeof(nxFrameCAN_t)]; // Use a large buffer for stream input
    nxFrameVar_t *l_pFrame = NULL;
    u32 l_NumBytes = 0;
-   u64 l_BaudRate = 125000;
+   u64 l_BaudRate = 500000;
    nxStatus_t l_Status = 0;
 
    // Display parameters that will be used for the example.
@@ -58,7 +59,7 @@ int main(void)
    }
    else
    {
-      DisplayErrorAndExit(l_Status, "nxCreateSession");
+      //DisplayErrorAndExit(l_Status, "nxCreateSession");
    }
 
    // We are not using a predefined database, so we need to set the Baud Rate
@@ -70,7 +71,7 @@ int main(void)
    }
    else
    {
-      DisplayErrorAndExit(l_Status, "nxSetProperty");
+      //DisplayErrorAndExit(l_Status, "nxSetProperty");
    }
 
    printf("Logging all received frames. Press q to quit\n");
@@ -89,7 +90,7 @@ int main(void)
          while ((u8 *)l_pFrame < (u8 *)l_Buffer + l_NumBytes)
          {
             // Print timestamp, ID and payload
-            PrintTimestamp(&l_pFrame->Timestamp);
+            //PrintTimestamp(&l_pFrame->Timestamp);
             printf("\t%d\t", l_pFrame->Identifier);
             for (i = 0; i < l_pFrame->PayloadLength; ++i)
             {
@@ -100,17 +101,17 @@ int main(void)
             // Go to next variable-payload frame.
             l_pFrame = nxFrameIterate(l_pFrame);
          }
-         Sleep(1); // Wait 1 ms
+         sleep(1); // Wait 1 ms
       }
       else
       {
-         DisplayErrorAndExit(l_Status, "nxReadFrame");
+         //DisplayErrorAndExit(l_Status, "nxReadFrame");
       }
 
-      if (_kbhit())
-      {
-         l_TypedChar = _getch();
-      }
+      // if (_kbhit())
+      // {
+      //    l_TypedChar = _getch();
+      // }
    }
    while ('q' != tolower(l_TypedChar));
 
@@ -124,7 +125,7 @@ int main(void)
    }
    else
    {
-      DisplayErrorAndExit(l_Status, "nxClear");
+      //DisplayErrorAndExit(l_Status, "nxClear");
    }
 
    return 0;
@@ -133,39 +134,39 @@ int main(void)
 //=============================================================================
 // Display Error Function
 //=============================================================================
-void DisplayErrorAndExit(nxStatus_t Status, char *Source)
-{
-   char l_StatusString[1024];
-   nxStatusToString(Status, sizeof(l_StatusString), l_StatusString);
+// void DisplayErrorAndExit(nxStatus_t Status, char *Source)
+// {
+//    char l_StatusString[1024];
+//    nxStatusToString(Status, sizeof(l_StatusString), l_StatusString);
 
-   printf("\n\nERROR at %s!\n%s\n", Source, l_StatusString);
-   printf("\nExecution stopped.\nPress any key to quit\n");
+//    printf("\n\nERROR at %s!\n%s\n", Source, l_StatusString);
+//    printf("\nExecution stopped.\nPress any key to quit\n");
 
-   nxClear(m_SessionRef);
+//    nxClear(m_SessionRef);
 
-   _getch();
-   exit(1);
-}
+//    _getch();
+//    exit(1);
+// }
 
 //=============================================================================
 // Prints a timestamp to stdout
 //=============================================================================
-int PrintTimestamp(nxTimestamp_t *Time)
-{
-   SYSTEMTIME l_STime;
-   FILETIME l_LocalFTime;
-   /* This Win32 function converts from UTC (international) time
-   to the local time zone.  The NI-XNET card keeps time in UTC
-   format (refer to the description of nxTimestamp_t in
-   the NI-XNET reference for Read functions). */
-   FileTimeToLocalFileTime((FILETIME *)Time, &l_LocalFTime);
+// int PrintTimestamp(nxTimestamp_t *Time)
+// {
+//    SYSTEMTIME l_STime;
+//    FILETIME l_LocalFTime;
+//    /* This Win32 function converts from UTC (international) time
+//    to the local time zone.  The NI-XNET card keeps time in UTC
+//    format (refer to the description of nxTimestamp_t in
+//    the NI-XNET reference for Read functions). */
+//    FileTimeToLocalFileTime((FILETIME *)Time, &l_LocalFTime);
 
-   /* This Win32 function converts an absolute time (FILETIME)
-   into SYSTEMTIME, a structure with fields for year, month, day,
-   and so on. */
-   FileTimeToSystemTime(&l_LocalFTime, &l_STime);
+//    /* This Win32 function converts an absolute time (FILETIME)
+//    into SYSTEMTIME, a structure with fields for year, month, day,
+//    and so on. */
+//    FileTimeToSystemTime(&l_LocalFTime, &l_STime);
 
-   return printf("%02d/%02d/%04d %02d:%02d:%02d.%03d", l_STime.wMonth, l_STime.wDay,
-      l_STime.wYear, l_STime.wHour, l_STime.wMinute, l_STime.wSecond,
-      l_STime.wMilliseconds);
-}
+//    return printf("%02d/%02d/%04d %02d:%02d:%02d.%03d", l_STime.wMonth, l_STime.wDay,
+//       l_STime.wYear, l_STime.wHour, l_STime.wMinute, l_STime.wSecond,
+//       l_STime.wMilliseconds);
+// }

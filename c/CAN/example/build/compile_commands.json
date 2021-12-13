@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/admin/LinuxRT/c/CAN/example/build",
+  "command": "/usr/bin/x86_64-nilrt-linux-gcc     -o CMakeFiles/CAN_Frame_Stream_Input.dir/CAN_Frame_Stream_Input.c.o   -c /home/admin/LinuxRT/c/CAN/example/CAN_Frame_Stream_Input.c",
+  "file": "/home/admin/LinuxRT/c/CAN/example/CAN_Frame_Stream_Input.c"
+}
+]
