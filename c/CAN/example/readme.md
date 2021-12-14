@@ -1,6 +1,6 @@
 # XNET C-code example
 
-This examples starts and listens on CAN frames.It uses the shared library libnixnet.so and nixnet.h
+This example starts and listens on CAN frames. It uses the shared library libnixnet.so and nixnet.h
 For API help, see section NI-XNET API for C in document NI-XNET Hardware and software help.
 
 ## Example usage
