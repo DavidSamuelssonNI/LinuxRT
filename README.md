@@ -1,3 +1,3 @@
 ## LinuxRT
 
-Please see c/* for c-code examples
+Please look in c directory for c-code examples
