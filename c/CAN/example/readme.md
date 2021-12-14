@@ -12,3 +12,6 @@ For API help, see section NI-XNET API for C in document NI-XNET Hardware and sof
 ## Tip on signal generation
 
 Use NI-XNET Bus Monitor to generate CAN signal.
+
+![image](https://user-images.githubusercontent.com/86668144/146000089-50e25f33-40a4-432c-ad65-15613b875c2c.png)
+
