@@ -72,41 +72,41 @@ DataReaderListenerImpl::DataReaderListenerImpl(){
 
 }
 
-void DataReaderListenerImpl::clearAndRemoveSharedMemory(key_t shm_key) {
-    // Create or open shared memory
-    int shmid = shmget(shm_key, sizeof(unsigned int), IPC_CREAT | 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        std::cerr << "shmid error" << std::endl;
-        return;
-    }
+// void DataReaderListenerImpl::clearAndRemoveSharedMemory(key_t shm_key) {
+//     // Create or open shared memory
+//     int shmid = shmget(shm_key, sizeof(unsigned int), IPC_CREAT | 0666);
+//     if (shmid == -1) {
+//         perror("shmget");
+//         std::cerr << "shmid error" << std::endl;
+//         return;
+//     }
 
-    // Attach shared memory to process
-    unsigned int* ref = (unsigned int*)shmat(shmid, NULL, 0);
+//     // Attach shared memory to process
+//     unsigned int* ref = (unsigned int*)shmat(shmid, NULL, 0);
 
-    // Clear the existing data in shared memory
-    std::memset(ref, 0, sizeof(unsigned int));
+//     // Clear the existing data in shared memory
+//     std::memset(ref, 0, sizeof(unsigned int));
 
-    // Detach shared memory
-    shmdt(ref);
+//     // Detach shared memory
+//     shmdt(ref);
 
-    // Check if other processes are attached
-    struct shmid_ds shmid_ds_info;
-    if (shmctl(shmid, IPC_STAT, &shmid_ds_info) == -1) {
-        perror("shmctl");
-        std::cerr << "Failed to get shared memory information" << std::endl;
-        return;
-    }
+//     // Check if other processes are attached
+//     struct shmid_ds shmid_ds_info;
+//     if (shmctl(shmid, IPC_STAT, &shmid_ds_info) == -1) {
+//         perror("shmctl");
+//         std::cerr << "Failed to get shared memory information" << std::endl;
+//         return;
+//     }
 
-    if (shmid_ds_info.shm_nattch == 0) {
-        // No other processes are attached, so it's safe to remove the shared memory
-        if (shmctl(shmid, IPC_RMID, NULL) == -1) {
-            perror("shmctl");
-            std::cerr << "Failed to remove shared memory" << std::endl;
-            return;
-        }
-    }
-}
+//     if (shmid_ds_info.shm_nattch == 0) {
+//         // No other processes are attached, so it's safe to remove the shared memory
+//         if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+//             perror("shmctl");
+//             std::cerr << "Failed to remove shared memory" << std::endl;
+//             return;
+//         }
+//     }
+// }
 
 // int DataReaderListenerImpl::initializeMember() {
 //     // You can call a function here to initialize memberVariable
@@ -172,50 +172,99 @@ DataReaderListenerImpl::set_LV_ref()
 
 }
 */
+
 void
-DataReaderListenerImpl::shareMessage(){
-    key_t shm_key = 1234;
-    key_t sem_key = 5678;
-    std::cout << "in share message";
-    // Create or open shared memory
-    int shmid = shmget(shm_key, sizeof(int), IPC_CREAT | 0666);
-    std::cout << "shmid: " << shmid;
-    if (shmid == -1) {
-        perror("shmget");
-        // Handle the error, perhaps return or exit.
-    }
+DataReaderListenerImpl::notify_no_more_data(){
+  key_t sem_key = 5679;
+  std::cout << "IS notifu_no_more_data sent?" << std::endl;
+    // Create or open a semaphore
+  int semid2 = semget(sem_key, 1, IPC_CREAT | 0666);
+  if (semid2 == -1) {
+      perror("semget");
+      //return 1;
+  }
 
-    // //td::cout << "hit?";
-    // Attach shared memory to process
-    int* shareMem = (int*)shmat(shmid, NULL, 0);
-
-    //Create or open a semaphore
-    int semid = semget(sem_key, 1, IPC_CREAT | 0666);
-    if (semid == -1) {
-        perror("semget");
-        // Handle the error, perhaps return or exit.
-    }
-
-    std::cout << "Wait for LabVIEW" << std::endl;
-   // Wait for other processes to finish using shared memory
+     //signal ready
     struct sembuf sb;
     sb.sem_num = 0;
+    sb.sem_op = 1; // Initialize semaphore value to 1
     sb.sem_flg = SEM_UNDO;
-    sb.sem_op = -1;  // Decrement the semaphore value to wait
+    semop(semid2, &sb, 1);
+
+}
+
+void 
+DataReaderListenerImpl::wait_for_event(int semid, int semaphore_nr)
+{
+    struct sembuf sb;
+    sb.sem_num = semaphore_nr;
+    sb.sem_op = -1; // Initialize semaphore value to 0
+    sb.sem_flg = SEM_UNDO;
     semop(semid, &sb, 1);
+}
 
-    std::cout << "Sending message"<< message_.count<< std::endl;
-    // Copy the message to shared memory
-    *shareMem = message_.count;
+void 
+DataReaderListenerImpl::send_ready_event(int semid, int semaphore_nr)
+{
+    struct sembuf sb;
+    sb.sem_num = semaphore_nr;
+    sb.sem_op = 1; // Initialize semaphore value to 1
+    sb.sem_flg = SEM_UNDO;
+    semop(semid, &sb, 1);
+}
 
-    // Signal other processes that the data is ready
-    // sb.sem_num = 1;
-    // sb.sem_op = 1;  // Increment the semaphore value
-    // sb.sem_flg = SEM_UNDO;
-    // semop(semid, &sb, 1);
+void
+DataReaderListenerImpl::share_message(Messenger::Message &message_to_transmit){
 
-    // Detach shared memory
-    // shmdt(shareMem);
+    key_t shm_key = 1234;
+    key_t sem_key = 5678;
+
+    // Create or open shared memory
+    int shmid = shmget(shm_key, sizeof(int), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        //return 1;
+    }
+
+    // Attach shared memory to the process
+    Messenger::Message* shareMem = (Messenger::Message*)shmat(shmid, NULL, 0);
+    
+    // Create or open a semaphore
+    int semid = semget(sem_key, 4, IPC_CREAT | 0666);
+    if (semid == -1) {
+        perror("semget");
+        //return 1;
+    }
+
+        //Set to known init state
+    unsigned short sem_values[4] = {0, 0, 0, 0};
+    struct sembuf sb;
+    sb.sem_num = 0;
+    sb.sem_op = 0;
+    sb.sem_flg = 0;
+    semctl(semid, 4, SETALL, sem_values);
+
+    std::cout << "Receiver: Waiting for the semaphore signal..." << std::endl;
+
+    // Decrement the semaphore value (wait for signal)
+    wait_for_event(semid, 0);
+
+    std::cout << "Receiver: Semaphore signal received. Proceeding." << std::endl;
+    Messenger::Message a;
+    a.count = message_to_transmit.count;
+     memcpy(shareMem, &a, sizeof(Messenger::Message));
+    // You can perform your desired actions here after receiving the signal
+
+    std::cout << "Send back memory Ready"<<std::endl;
+    //signal ready
+    send_ready_event(semid, 1);
+
+    //Wait for LV to handle the event
+    wait_for_event(semid,2);
+
+
+    //Detach shared memory
+    shmdt(shareMem);
 
 }
 
@@ -270,7 +319,7 @@ DataReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
 {
   // set_LV_ref();
   Messenger::MessageDataReader_var reader_i =
-    Messenger::MessageDataReader::_narrow(reader);
+  Messenger::MessageDataReader::_narrow(reader);
 
   if (!reader_i) {
     ACE_ERROR((LM_ERROR,
@@ -283,7 +332,12 @@ DataReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
   DDS::SampleInfo info;
 
   const DDS::ReturnCode_t error = reader_i->take_next_sample(message, info);
+  //Ready to produce more data
+  // key_t sem_key = 5678;
+  // int semid = semget(sem_key, 4, IPC_CREAT | 0666);
+  // send_ready_event(semid,3);
 
+  share_message(message);
   if (error == DDS::RETCODE_OK) {
     std::cout << "SampleInfo.sample_rank = " << info.sample_rank << std::endl;
     std::cout << "SampleInfo.instance_state = " << OpenDDS::DCPS::InstanceState::instance_state_mask_string(info.instance_state) << std::endl;
@@ -294,18 +348,22 @@ DataReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
                 << "         from       = " << message.from.in()    << std::endl
                 << "         count      = " << message.count        << std::endl
                 << "         text       = " << message.text.in()    << std::endl;
-      message_ = message;
+      
+     
+      // message_ = message;
       //shareMessage();
       //trigger_LV_event(message);
     }
     
 
   } else {
+
     ACE_ERROR((LM_ERROR,
                ACE_TEXT("ERROR: %N:%l: on_data_available() -")
                ACE_TEXT(" take_next_sample failed!\n")));
   }
   if(info.valid_data){
+    //notify_no_more_data();
     //latestMessageCount = message.count;
   }
   

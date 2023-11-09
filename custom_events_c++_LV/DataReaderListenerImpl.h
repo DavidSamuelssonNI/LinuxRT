@@ -50,13 +50,17 @@ public:
   Messenger::Message message_;
   // Constructor that accepts *ref as an argument
   DataReaderListenerImpl();
-  int initializeMember();
+  void share_message(Messenger::Message &message_to_transmit);
+  void wait_for_event(int semid,int semaphore_nr);
+  void send_ready_event(int semid,int semaphore_nr);
+  void notify_no_more_data();
+  // int initializeMember();
   // Sets the ref that was sent from LV, to be able to trigger events to LV 
   // LVUserEventRef set_LV_ref();
-  void shareMessage();
+  // void shareMessage();
   //void setMessage(Messenger::Message &message);
   // void trigger_LV_event(Messenger::Message &message);
-  void clearAndRemoveSharedMemory(key_t shm_key);
+  // void clearAndRemoveSharedMemory(key_t shm_key);
 
   virtual void on_requested_deadline_missed(
     DDS::DataReader_ptr reader,
