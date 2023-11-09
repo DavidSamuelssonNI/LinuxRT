@@ -59,8 +59,8 @@ extern "C" int32_t pass_LV_ref_to_shared_mem(LVUserEventRef *ref){
     semctl(semid, 4, SETALL, sem_values);
 
 
-    for(int i = 0; i<10;i++){
-
+    //for(int i = 0; i<10;i++){
+      while(true){
         std::cout << "Send signal Ready"<<std::endl;
         //signal ready
         send_ready_event(semid,0);
@@ -83,6 +83,9 @@ extern "C" int32_t pass_LV_ref_to_shared_mem(LVUserEventRef *ref){
                     if (PostLVUserEvent) {
                         std::cout << "does this happen"<<std::endl;
                         int result = PostLVUserEvent(*ref, (void*)&a);
+                        if(a==9){
+                            break;
+                        }
                     }
                 }
             }
@@ -90,9 +93,8 @@ extern "C" int32_t pass_LV_ref_to_shared_mem(LVUserEventRef *ref){
         send_ready_event(semid,2);
         //SKICKA TILLBAKA RESPONSE ATT DEN ÄR SATT INNAN NÄSTA LÄSES?
         std::cout<<"Slut"<<std::endl;
-    //Detach shared memory
-
     }
+    //Detach shared memory
     shmdt(shareMem);
     return 0;
 }
