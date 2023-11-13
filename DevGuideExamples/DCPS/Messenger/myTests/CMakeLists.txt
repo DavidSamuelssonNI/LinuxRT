@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_executable(IDLParserExample idl_parser.cpp)
 add_executable(generate_listener generate_listener.cpp)
+add_executable(generate_header generate_header_for_LV.cpp)
+add_executable(cppmodelparser parse_header_to_parameters_for_vs_cppmodel.cpp)
 
 # Optionally, you can include this if your compiler supports filesystem
 # target_compile_features(IDLParserExample PRIVATE cxx_std_17)

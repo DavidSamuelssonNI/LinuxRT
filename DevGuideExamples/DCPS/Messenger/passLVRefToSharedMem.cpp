@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <fstream>
 
-
 #include "MessengerTypeSupportC.h"
 #include "MessengerTypeSupportImpl.h"
 
@@ -71,8 +70,7 @@ extern "C" int32_t pass_LV_ref_to_shared_mem(LVUserEventRef *ref){
         wait_for_event(semid,1);
 
         std::cout << "finsihed waiting: "  <<std::endl;
-        // Cast shareMem to Messenger::Message* since it's a struct
-
+            // Cast shareMem to Messenger::Message* since it's a struct
             Messenger::Message* receivedMessage = reinterpret_cast<Messenger::Message*>(shareMem);
             std::cout << "Shared mem value: " << receivedMessage->count << std::endl;
             int a = receivedMessage->count;
