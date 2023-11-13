@@ -11,10 +11,10 @@ module Messenger {
   };
 };
 
-module ApaModule {
+module Apa {
 
   @topic
-  struct ApaStruct {
+  struct Message2 {
     string from;
     string subject;
     @key long subject_id;

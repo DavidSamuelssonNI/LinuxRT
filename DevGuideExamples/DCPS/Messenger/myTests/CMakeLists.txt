@@ -3,7 +3,7 @@ project(IDLParserExample)
 
 set(CMAKE_CXX_STANDARD 11)
 
-#add_executable(IDLParserExample idl_parser.cpp)
+add_executable(IDLParserExample idl_parser.cpp)
 add_executable(generate_listener generate_listener.cpp)
 
 # Optionally, you can include this if your compiler supports filesystem

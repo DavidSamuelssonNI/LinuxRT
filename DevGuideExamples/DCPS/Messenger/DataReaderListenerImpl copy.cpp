@@ -6,8 +6,8 @@
 #include "MessengerTypeSupportC.h"
 #include "MessengerTypeSupportImpl.h"
 
-#include "ApaModuleTypeSupportC.h"
-#include "ApaModuleTypeSupportImpl.h"
+#include "Messenger2TypeSupportC.h"
+#include "Messenger2TypeSupportImpl.h"
 
 #include <iostream>
 
@@ -61,31 +61,31 @@ DataReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader)
                  ACE_TEXT("ERROR: %N:%l: on_data_available() -")
                  ACE_TEXT(" take_next_sample failed!\n")));
     }
-    ApaModule::ApaStructDataReader_var apaStruct_reader =
-      ApaModule::ApaStructDataReader::_narrow(reader);
+    Messenger2::Message2DataReader_var message2_reader =
+      Messenger2::Message2DataReader::_narrow(reader);
 
-    if (!apaStruct_reader) {
+    if (!message2_reader) {
       ACE_ERROR((LM_ERROR,
                  ACE_TEXT("ERROR: %N:%l: on_data_available() -")
                  ACE_TEXT(" _narrow failed!\n")));
       ACE_OS::exit(1);
     }
 
-    ApaModule::ApaStruct apaStruct;
+    Messenger2::Message2 message2;
     DDS::SampleInfo info;
 
-    const DDS::ReturnCode_t error = apaStruct_reader->take_next_sample(apaStruct,info);
+    const DDS::ReturnCode_t error = message2_reader->take_next_sample(message2,info);
 
     if (error == DDS::RETCODE_OK) {
       std::cout << "SampleInfo.sample_rank = " << info.sample_rank << std::endl;
       std::cout << "SampleInfo.instance_state = " << OpenDDS::DCPS::InstanceState::instance_state_mask_string(info.instance_state) << std::endl;
 
       if (info.valid_data) {
-        std::cout << "Message: subject    = " << apaStruct.subject.in() << std::endl
-                  << "         subject_id = " << apaStruct.subject_id   << std::endl
-                  << "         from       = " << apaStruct.from.in()    << std::endl
-                  << "         count      = " << apaStruct.count        << std::endl
-                  << "         text       = " << apaStruct.text.in()    << std::endl;
+        std::cout << "Message: subject    = " << message2.subject.in() << std::endl
+                  << "         subject_id = " << message2.subject_id   << std::endl
+                  << "         from       = " << message2.from.in()    << std::endl
+                  << "         count      = " << message2.count        << std::endl
+                  << "         text       = " << message2.text.in()    << std::endl;
       }
     } else {
       ACE_ERROR((LM_ERROR,
