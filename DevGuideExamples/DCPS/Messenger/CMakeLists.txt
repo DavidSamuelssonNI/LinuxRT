@@ -5,6 +5,10 @@ enable_testing()
 find_package(OpenDDS REQUIRED)
 include(opendds_testing)
 
+# David
+# Add the -fPIC flag to the CMake compilation options
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
 # Make sure the MPC-generated headers are gone so the CMake build will use the
 # right ones. This is not needed in a real project.
 file(GLOB headers "*.h")
@@ -38,7 +42,29 @@ add_executable(subscriber
   Subscriber.cpp
   DataReaderListenerImpl.cpp
 )
-target_link_libraries(subscriber ${opendds_libs})
+
+add_library(passLVRefToSharedMem SHARED
+  passLVRefToSharedMem.cpp
+)
+target_link_libraries(passLVRefToSharedMem ${opendds_libs} dl)
+add_executable(testlv 
+  testlv.cpp
+)
+target_link_libraries(testlv ${opendds_libs} dl passLVRefToSharedMem)
+add_executable(semaphore_receiver 
+  SemaphoreReceiver.cpp
+)
+target_link_libraries(semaphore_receiver ${opendds_libs} dl)
+# add_library(subscriber SHARED
+#   Subscriber.cpp
+#   DataReaderListenerImpl.cpp
+# )
+target_include_directories(passLVRefToSharedMem PRIVATE ${CMAKE_HOME_DIRECTORY})
+target_include_directories(passLVRefToSharedMem PRIVATE /home/admin/OpenDDS/ACE_wrappers/)  # No need for pre.h
+target_include_directories(passLVRefToSharedMem PRIVATE /home/admin/OpenDDS/)
+target_include_directories(passLVRefToSharedMem PRIVATE /home/admin/OpenDDS/DevGuideExamples/DCPS/Messenger/build/opendds_generated)
+target_include_directories(passLVRefToSharedMem PRIVATE /home/admin/OpenDDS/ACE_wrappers/TAO/)
+target_link_libraries(subscriber ${opendds_libs} dl)
 
 # Testing
 configure_file(run_test.pl . COPYONLY)

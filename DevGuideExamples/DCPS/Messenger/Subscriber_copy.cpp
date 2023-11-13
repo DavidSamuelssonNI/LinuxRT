@@ -2,50 +2,6 @@
  * Distributed under the OpenDDS License.
  * See: http://www.opendds.org/license.html
  */
-/*
-#include <thread>
-#include <condition_variable>
-#include <chrono>
-
-// ... Other code ...
-
-// Declare a condition variable and mutex
-std::condition_variable cv;
-std::mutex cvMutex;
-
-// Start a separate thread for periodic sending
-std::thread senderThread([&] {
-    while (true) {
-        // Replace the following sleep with your desired interval mechanism
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // Sleep for 1 second (adjust as needed)
-
-        // Check if a valid last available sample exists
-        if (lastAvailableMessage.text.in() != nullptr) {
-            // Send the last available sample using PostLVUserEvent
-            PostLVUserEvent(*ref, (void*)lastAvailableMessage.text.in());
-        }
-
-        // Notify the condition variable to wake up the main thread
-        cv.notify_one();
-    }
-});
-
-// ... Other code ...
-
-// Inside your on_data_available method
-void DataReaderListenerImpl::on_data_available(DDS::DataReader_ptr reader) {
-    // ... Existing code to process data ...
-
-    // Notify the condition variable to wake up the senderThread
-    cv.notify_one();
-}
-
-// ... Other code ...
-
-// Join the senderThread when the program exits
-senderThread.join();
-*/
-
 
 #include "DataReaderListenerImpl.h"
 #include "MessengerTypeSupportImpl.h"
@@ -64,13 +20,9 @@ senderThread.join();
 
 #include <ace/Log_Msg.h>
 
-//int ACE_TMAIN(int argc, ACE_TCHAR* argv[])
-int ACE_TMAIN()
+int ACE_TMAIN(int argc, ACE_TCHAR* argv[])
 {
   try {
-    //std::cout << "argc " << argc <<" hej "<<  argv[0] <<" hej "<< argv[1]<<" hej"<< argv[2] << std::endl;
-    int argc = 3;
-    char* argv[] = { (char*)"./subscriber", (char*)"-DCPSConfigFile", (char*)"./rtps.ini" };
     // Initialize DomainParticipantFactory
     DDS::DomainParticipantFactory_var dpf =
       TheParticipantFactoryWithArgs(argc, argv);
@@ -130,7 +82,7 @@ int ACE_TMAIN()
     }
 
     // Create DataReader
-    DDS::DataReaderListener_var listener(new DataReaderListenerImpl());
+    DDS::DataReaderListener_var listener(new DataReaderListenerImpl);
 
     DDS::DataReaderQos reader_qos;
     subscriber->get_default_datareader_qos(reader_qos);
